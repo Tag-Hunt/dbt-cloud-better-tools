@@ -1,3 +1,5 @@
+import * as path from "path";
+
 export type DemoColumn = {
   name: string;
   datatype: string;
@@ -29,6 +31,8 @@ type DemoNode = {
   upstream: string[];
   downstream: string[];
   schema?: string;
+  filePath: string;
+  testsPath?: string;
 };
 
 const NODE_DEFINITIONS: Record<string, DemoNode> = {
@@ -61,6 +65,8 @@ const NODE_DEFINITIONS: Record<string, DemoNode> = {
     upstream: [],
     downstream: ["model.jaffle_shop.stg_customers"],
     schema: "raw",
+    filePath: "models/staging/sources.yml",
+    testsPath: "models/staging/sources.yml",
   },
   "source.jaffle_shop.raw_orders": {
     label: "raw_orders",
@@ -91,6 +97,8 @@ const NODE_DEFINITIONS: Record<string, DemoNode> = {
     upstream: [],
     downstream: ["model.jaffle_shop.stg_orders"],
     schema: "raw",
+    filePath: "models/staging/sources.yml",
+    testsPath: "models/staging/sources.yml",
   },
   "model.jaffle_shop.stg_customers": {
     label: "stg_customers",
@@ -119,6 +127,8 @@ const NODE_DEFINITIONS: Record<string, DemoNode> = {
       "model.jaffle_shop.dim_customers",
       "model.jaffle_shop.fct_orders",
     ],
+    filePath: "models/staging/stg_customers.sql",
+    testsPath: "models/staging/schema.yml",
   },
   "model.jaffle_shop.stg_orders": {
     label: "stg_orders",
@@ -149,6 +159,8 @@ const NODE_DEFINITIONS: Record<string, DemoNode> = {
     ],
     upstream: ["source.jaffle_shop.raw_orders"],
     downstream: ["model.jaffle_shop.fct_orders"],
+    filePath: "models/staging/stg_orders.sql",
+    testsPath: "models/staging/schema.yml",
   },
   "model.jaffle_shop.dim_customers": {
     label: "dim_customers",
@@ -177,6 +189,8 @@ const NODE_DEFINITIONS: Record<string, DemoNode> = {
       "model.jaffle_shop.fct_orders",
       "exposure.jaffle_shop.customer_dashboard",
     ],
+    filePath: "models/marts/dim_customers.sql",
+    testsPath: "models/marts/schema.yml",
   },
   "model.jaffle_shop.fct_orders": {
     label: "fct_orders",
@@ -216,6 +230,8 @@ const NODE_DEFINITIONS: Record<string, DemoNode> = {
       "model.jaffle_shop.stg_customers",
     ],
     downstream: ["exposure.jaffle_shop.customer_dashboard"],
+    filePath: "models/marts/fct_orders.sql",
+    testsPath: "models/marts/schema.yml",
   },
   "exposure.jaffle_shop.customer_dashboard": {
     label: "customer_dashboard",
@@ -227,55 +243,69 @@ const NODE_DEFINITIONS: Record<string, DemoNode> = {
       "model.jaffle_shop.fct_orders",
     ],
     downstream: [],
+    filePath: "models/exposures.yml",
   },
 };
 
-const TESTS = (table: string) => [
+const TESTS = (table: string, filePath?: string) => [
   {
     key: `${table}.not_null`,
-    path: "README.md",
+    path: filePath ?? "",
   },
 ];
 
 export const ROOT_TABLE = "model.jaffle_shop.fct_orders";
 
-function toDemoTable(key: string, url?: string): DemoTable {
+function resolveProjectPath(
+  projectRoot: string | undefined,
+  relativePath: string | undefined,
+) {
+  if (!projectRoot || !relativePath) {
+    return undefined;
+  }
+
+  return path.join(projectRoot, relativePath);
+}
+
+function toDemoTable(key: string, projectRoot?: string): DemoTable {
   const node = NODE_DEFINITIONS[key];
+  const filePath = resolveProjectPath(projectRoot, node.filePath);
+  const testsPath = resolveProjectPath(projectRoot, node.testsPath);
   return {
     table: key,
     label: node.label,
-    url,
+    url: filePath,
     nodeType: node.nodeType,
     materialization: node.materialization,
     downstreamCount: node.downstream.length,
     upstreamCount: node.upstream.length,
     isExternalProject: false,
-    tests: TESTS(key),
+    tests: TESTS(key, testsPath),
     schema: node.schema,
   };
 }
 
-export function getRootLineage(url?: string) {
+export function getRootLineage(projectRoot?: string) {
   return {
-    node: toDemoTable(ROOT_TABLE, url),
+    node: toDemoTable(ROOT_TABLE, projectRoot),
     aiEnabled: false,
   };
 }
 
-export function getUpstreamTables(table: string, url?: string) {
+export function getUpstreamTables(table: string, projectRoot?: string) {
   const node = NODE_DEFINITIONS[table];
   if (!node) {
     return [];
   }
-  return node.upstream.map((key) => toDemoTable(key, url));
+  return node.upstream.map((key) => toDemoTable(key, projectRoot));
 }
 
-export function getDownstreamTables(table: string, url?: string) {
+export function getDownstreamTables(table: string, projectRoot?: string) {
   const node = NODE_DEFINITIONS[table];
   if (!node) {
     return [];
   }
-  return node.downstream.map((key) => toDemoTable(key, url));
+  return node.downstream.map((key) => toDemoTable(key, projectRoot));
 }
 
 export function getColumns(table: string) {

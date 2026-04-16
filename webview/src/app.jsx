@@ -36,9 +36,7 @@ function setBodyTheme(theme) {
 
 export default function App({ bootstrap }) {
   const [theme, setTheme] = useState(bootstrap.theme ?? "dark");
-  const [dynamicLineage, setDynamicLineage] = useState(
-    bootstrap.dynamicLineage,
-  );
+  const [dynamicLineage, setDynamicLineage] = useState();
 
   useEffect(() => {
     setBodyTheme(theme);
@@ -49,16 +47,20 @@ export default function App({ bootstrap }) {
       return;
     }
 
-    document.dispatchEvent(
-      new CustomEvent("renderStartNode", {
-        detail: {
-          ...dynamicLineage,
-          lightdashEnabled: false,
-          showCodeModal: true,
-          config: { exportFinalLineage: false },
-        },
-      }),
-    );
+    const frame = requestAnimationFrame(() => {
+      document.dispatchEvent(
+        new CustomEvent("renderStartNode", {
+          detail: {
+            ...dynamicLineage,
+            lightdashEnabled: false,
+            showCodeModal: true,
+            config: { exportFinalLineage: false },
+          },
+        }),
+      );
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, [dynamicLineage]);
 
   useEffect(() => {
@@ -94,14 +96,11 @@ export default function App({ bootstrap }) {
     };
 
     window.addEventListener("message", handleMessage);
+    postMessage({ command: "init" });
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   const content = useMemo(() => {
-    if (!dynamicLineage) {
-      return null;
-    }
-
     return (
       <Lineage
         theme={theme}

@@ -1,0 +1,16 @@
+version: 2
+
+exposures:
+  - name: customer_dashboard
+    label: Customer Dashboard
+    type: dashboard
+    maturity: high
+    url: https://example.com/customer-dashboard
+    description: >
+      Business-facing dashboard consuming customer and order marts.
+    depends_on:
+      - ref('dim_customers')
+      - ref('fct_orders')
+    owner:
+      name: Analytics Team
+      email: analytics@example.com

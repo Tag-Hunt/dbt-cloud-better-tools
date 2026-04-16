@@ -18,6 +18,11 @@ export function activate(context: vscode.ExtensionContext): void {
   const openLineageDemo = vscode.commands.registerCommand(
     "dbtCloudBetterTools.openLineageDemo",
     () => {
+      const demoProjectRoot = vscode.Uri.joinPath(
+        context.extensionUri,
+        "examples",
+        "demo_dbt_project",
+      ).fsPath;
       const panel = vscode.window.createWebviewPanel(
         "dbtCloudBetterTools.lineageDemo",
         "Lineage Demo",
@@ -29,13 +34,8 @@ export function activate(context: vscode.ExtensionContext): void {
         },
       );
 
-      const readmePath = vscode.Uri.joinPath(
-        context.extensionUri,
-        "README.md",
-      ).fsPath;
       const bootstrap = {
         theme: getTheme(),
-        dynamicLineage: getRootLineage(readmePath),
       };
 
       panel.webview.html = getWebviewHtml(panel.webview, context.extensionUri, bootstrap);
@@ -71,16 +71,25 @@ export function activate(context: vscode.ExtensionContext): void {
 
         try {
           switch (command) {
+            case "init":
+              panel.webview.postMessage({
+                command: "render",
+                args: getRootLineage(demoProjectRoot),
+              });
+              return;
             case "upstreamTables":
               response({
-                tables: getUpstreamTables(String(params.table ?? ""), readmePath),
+                tables: getUpstreamTables(
+                  String(params.table ?? ""),
+                  demoProjectRoot,
+                ),
               });
               return;
             case "downstreamTables":
               response({
                 tables: getDownstreamTables(
                   String(params.table ?? ""),
-                  readmePath,
+                  demoProjectRoot,
                 ),
               });
               return;

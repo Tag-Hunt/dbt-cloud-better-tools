@@ -1,0 +1,35 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw application tables loaded outside dbt.
+    schema: raw
+    tables:
+      - name: raw_customers
+        description: Raw customer records landed from the application database.
+        columns:
+          - name: customer_id
+            description: Stable customer identifier.
+            tests:
+              - not_null
+              - unique
+          - name: first_name
+            description: Customer first name.
+          - name: last_name
+            description: Customer last name.
+          - name: email
+            description: Customer email address.
+      - name: raw_orders
+        description: Raw order events captured from the commerce platform.
+        columns:
+          - name: order_id
+            description: Stable order identifier.
+            tests:
+              - not_null
+              - unique
+          - name: customer_id
+            description: Customer identifier from the source system.
+          - name: order_date
+            description: Date the order was placed.
+          - name: status
+            description: Order lifecycle status.

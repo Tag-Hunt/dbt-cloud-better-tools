@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: Standardized customer staging model.
+    columns:
+      - name: customer_id
+        description: Normalized customer identifier.
+        tests:
+          - not_null
+          - unique
+      - name: customer_name
+        description: Display-ready full customer name.
+      - name: email
+        description: Canonical customer email.
+
+  - name: stg_orders
+    description: Standardized order staging model.
+    columns:
+      - name: order_id
+        description: Normalized order identifier.
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Order customer identifier.
+      - name: order_date
+        description: Canonical order date.
+      - name: status
+        description: Normalized order status.

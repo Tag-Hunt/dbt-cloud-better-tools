@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: Customer dimension used by reporting models.
+    columns:
+      - name: customer_id
+        description: Business key for customers.
+        tests:
+          - not_null
+          - unique
+      - name: customer_name
+        description: Customer display name.
+      - name: email
+        description: Customer email address.
+
+  - name: fct_orders
+    description: Order fact model joined to customer attributes.
+    columns:
+      - name: order_id
+        description: Order business key.
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Customer business key.
+      - name: customer_name
+        description: Resolved customer name for reporting.
+      - name: order_date
+        description: Order date used for time series reporting.
+      - name: status
+        description: Final order status.
