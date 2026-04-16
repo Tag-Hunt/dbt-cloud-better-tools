@@ -1,0 +1,57 @@
+{
+  "name": "dbt-cloud-better-tools",
+  "displayName": "dbt Cloud Better Tools",
+  "description": "VS Code extension experiments for dbt lineage and dbt Cloud workflows.",
+  "version": "0.0.1",
+  "publisher": "local-dev",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:dbtCloudBetterTools.helloWorld",
+    "onCommand:dbtCloudBetterTools.openLineageDemo"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dbtCloudBetterTools.helloWorld",
+        "title": "Hello World",
+        "category": "dbt Cloud Better Tools"
+      },
+      {
+        "command": "dbtCloudBetterTools.openLineageDemo",
+        "title": "Open Lineage Demo",
+        "category": "dbt Cloud Better Tools"
+      }
+    ]
+  },
+  "scripts": {
+    "build:webview": "vite build --config webview/vite.config.mjs",
+    "compile": "npm run build:webview && tsc -p ./",
+    "watch": "tsc -w -p ./"
+  },
+  "dependencies": {
+    "@ant-design/pro-chat": "^1.15.2",
+    "antd": "^5.21.0",
+    "antd-style": "^3.6.3",
+    "bootstrap": "^5.3.2",
+    "formik": "^2.4.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-syntax-highlighter": "^15.5.0",
+    "reactstrap": "^9.2.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "@types/vscode": "^1.90.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.0.8"
+  }
+}
