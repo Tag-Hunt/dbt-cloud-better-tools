@@ -12,23 +12,37 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:dbtCloudBetterTools.helloWorld",
-    "onCommand:dbtCloudBetterTools.openLineageDemo"
+    "onCommand:dbtCloudBetterTools.openLineageDemo",
+    "onView:dbtPowerUser.Lineage",
+    "workspaceContains:**/dbt_project.yml"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "dbtCloudBetterTools.helloWorld",
-        "title": "Hello World",
-        "category": "dbt Cloud Better Tools"
-      },
-      {
         "command": "dbtCloudBetterTools.openLineageDemo",
         "title": "Open Lineage Demo",
         "category": "dbt Cloud Better Tools"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "lineage_view",
+          "title": "Lineage",
+          "icon": "media/lineage-view.svg"
+        }
+      ]
+    },
+    "views": {
+      "lineage_view": [
+        {
+          "type": "webview",
+          "id": "dbtPowerUser.Lineage",
+          "name": ""
+        }
+      ]
+    }
   },
   "scripts": {
     "build:webview": "vite build --config webview/vite.config.mjs",
